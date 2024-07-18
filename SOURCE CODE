@@ -1,0 +1,83 @@
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+const int N = 9; // Size of the Sudoku grid
+
+bool isValid(const vector<vector<int>>& grid, int row, int col, int num) {
+  // Check row and column
+  for (int i = 0; i < N; ++i) {
+    if (grid[row][i] == num || grid[i][col] == num) {
+      return false;
+    }
+  }
+
+  // Check subgrid
+  int subgridRowStart = (row / 3) * 3;
+  int subgridColStart = (col / 3) * 3;
+  for (int i = subgridRowStart; i < subgridRowStart + 3; ++i) {
+    for (int j = subgridColStart; j < subgridColStart + 3; ++j) {
+      if (grid[i][j] == num) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool solveSudoku(vector<vector<int>>& grid, int row, int col) {
+  // Base case: end of grid
+  if (row == N) {
+    return true;
+  }
+
+  // If current cell is already filled, move to next column
+  if (grid[row][col] > 0) {
+    return solveSudoku(grid, row, col + 1);
+  }
+
+  // Try all possible numbers (1 to 9)
+  for (int num = 1; num <= N; ++num) {
+    if (isValid(grid, row, col, num)) {
+      grid[row][col] = num;
+
+      // Recursively solve for next cell
+      if (solveSudoku(grid, row + (col + 1) / N, (col + 1) % N)) {
+        return true; // Found a solution
+      }
+
+      grid[row][col] = 0; // Backtrack: undo placement
+    }
+  }
+
+  return false; // No solution found
+}
+
+void printSudoku(const vector<vector<int>>& grid) {
+  for (int i = 0; i < N; ++i) {
+    for (int j = 0; j < N; ++j) {
+      cout << grid[i][j] << " ";
+    }
+    cout << endl;
+  }
+}
+
+int main() {
+  vector<vector<int>> grid(N, vector<int>(N, 0));
+
+  // Input the Sudoku grid (replace with your puzzle data)
+  // Example:
+  // grid[0] = {3, 0, 6, 5, 0, 8, 4, 0, 1};
+  // ... (fill other rows)
+
+  if (solveSudoku(grid, 0, 0)) {
+    cout << "Solved Sudoku:" << endl;
+    printSudoku(grid);
+  } else {
+    cout << "No solution found!" << endl;
+  }
+
+  return 0;
+}
